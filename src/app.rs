@@ -2,14 +2,19 @@ use crate::airtable::*;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use log::info;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
-    pub name: String,
-    // pub description: String,
-    // pub price: i32,
-    // pub images: Vec<AttachmentShort>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub price: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<AttachmentShort>>,
 }
 
 #[component]
@@ -34,55 +39,76 @@ pub async fn load_data() -> Result<Vec<Record<Item>>, ServerFnError> {
     let airtable = Airtable::new_from_env();
 
     // Get the current records from a table.
-    match airtable
-        .list_records::<Item>(
-            "items",
-            "Grid view",
-            // "tools",
-            // vec!["name", "description", "price", "images"],
-            // vec!["name"],
-        )
-        .await
-    {
-        Ok(records) => Ok(records),
+    match airtable.list_records::<Item>("items", "Grid view").await {
+        Ok(records) => {
+            info!("{:?}", records);
+            Ok(records)
+        }
         Err(e) => Err(ServerFnError::ServerError(e.to_string())),
     }
 }
+
 #[component]
-pub fn BusyButton() -> impl IntoView {
+pub fn ShowData(data: Result<Vec<Record<Item>>, ServerFnError>) -> impl IntoView {
+    let the_data = data.unwrap();
     view! {
-        <button on:click=move |_| {
-            spawn_local(async {
-                let res = load_data().await;
-                logging::log!("{:?}", res);
-            });
-        }>
-            "Add Todo"
-        </button>
+        <div class="flex flex-row-reverse flex-wrap m-auto">
+            {the_data.into_iter()
+                // .map(|d| view! { <li>{d.fields.description}</li> })
+                .map(|d| {
+                    let item: Item = d.fields;
+                    view! {
+                        <ItemForSale item /> }
+                })
+                .collect_view()}
+        </div>
+    }
+}
+
+#[component]
+pub fn ItemForSale(item: Item) -> impl IntoView {
+    view! {
+        <div>
+            <p>{item.name}</p>
+            <p>{item.description}</p>
+            { if item.price.is_some() {
+                    let price = item.price.unwrap();
+                    view! { <p>{format!("${:.2}", price)}</p> }
+                } else {
+                    view! { <p></p> }
+                }
+
+            }
+            { if item.images.is_some() {
+                let images = item.images.unwrap();
+                images.into_iter()
+                    .map(|i| view! {<img src={i.url} />})
+                    .collect_view()
+                } else {
+                    view! {}.into_view()
+                }
+            }
+        </div>
     }
 }
 
 #[component]
 fn Home() -> impl IntoView {
-    let (value, set_value) = create_signal(0);
+    let data = create_resource(|| (), |_| async move { load_data().await });
 
-    // thanks to https://tailwindcomponents.com/component/blue-buttons-example for the showcase layout
     view! {
-        <Title text="Leptos + Tailwindcss"/>
+        <Title text="Unwedding Unregistry"/>
         <main>
-            <div class="bg-gradient-to-tl from-blue-800 to-blue-500 text-white font-mono flex flex-col min-h-screen">
-                <div class="flex flex-row-reverse flex-wrap m-auto">
-                    <BusyButton />
-                    <button on:click=move |_| set_value.update(|value| *value += 1) class="rounded px-3 py-2 m-1 border-b-4 border-l-2 shadow-lg bg-blue-700 border-blue-800 text-white">
-                        "+"
-                    </button>
-                    <button class="rounded px-3 py-2 m-1 border-b-4 border-l-2 shadow-lg bg-blue-800 border-blue-900 text-white">
-                        {value}
-                    </button>
-                    <button on:click=move |_| set_value.update(|value| *value -= 1) class="rounded px-3 py-2 m-1 border-b-4 border-l-2 shadow-lg bg-blue-700 border-blue-800 text-white">
-                        "-"
-                    </button>
-                </div>
+            <div class="font-mono">
+                <h1>Unwedding Unregistry</h1>
+                <Suspense fallback=|| ()>
+                        {move || match data.get() {
+                            None => view! { <p>"Loading..."</p> }.into_view(),
+                            Some(data) => {
+                                view! { <ShowData data/> }.into_view()
+                            }
+                        }}
+                </Suspense>
             </div>
         </main>
     }
