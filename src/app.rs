@@ -52,7 +52,7 @@ pub async fn load_data() -> Result<Vec<Record<Item>>, ServerFnError> {
 pub fn ShowData(data: Result<Vec<Record<Item>>, ServerFnError>) -> impl IntoView {
     let the_data = data.unwrap();
     view! {
-        <div class="flex flex-row-reverse flex-wrap m-auto">
+        <div class="m-auto grid grid-cols-3 gap-4">
             {the_data.into_iter()
                 // .map(|d| view! { <li>{d.fields.description}</li> })
                 .map(|d| {
@@ -68,9 +68,9 @@ pub fn ShowData(data: Result<Vec<Record<Item>>, ServerFnError>) -> impl IntoView
 #[component]
 pub fn ItemForSale(item: Item) -> impl IntoView {
     view! {
-        <div>
-            <p>{item.name}</p>
-            <p>{item.description}</p>
+        <div class="border-gray-700 border-2 p-10">
+            <p class="text-2xl capitalize">{item.name}</p>
+            <p class="text-sm">{item.description}</p>
             { if item.price.is_some() {
                     let price = item.price.unwrap();
                     view! { <p>{format!("${:.2}", price)}</p> }
@@ -98,9 +98,9 @@ fn Home() -> impl IntoView {
 
     view! {
         <Title text="Unwedding Unregistry"/>
-        <main>
-            <div class="font-mono">
-                <h1>Unwedding Unregistry</h1>
+        <main class="mx-10 grid justify-items-center">
+            <h1 class="text-5xl my-10">Unwedding Unregistry</h1>
+            <div>
                 <Suspense fallback=|| ()>
                         {move || match data.get() {
                             None => view! { <p>"Loading..."</p> }.into_view(),
