@@ -36,6 +36,7 @@
  * ```
  */
 #![allow(clippy::field_reassign_with_default, dead_code)]
+// use log::info;
 use std::{env, fmt, fmt::Debug, marker::PhantomData};
 
 use anyhow::{bail, Result};
