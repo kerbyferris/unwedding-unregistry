@@ -122,6 +122,21 @@ pub fn ItemForSale(item: Item) -> impl IntoView {
     }
 }
 
+pub fn get_categories(items: Vec<Record<Item>>) -> Vec<String> {
+    let mut categories: Vec<String> = items
+        .into_iter()
+        .map(|i| i.fields.categories)
+        .filter(|c| c.is_some())
+        .map(|c| c.unwrap())
+        .flatten()
+        .collect();
+
+    categories.sort();
+    categories.dedup();
+
+    categories
+}
+
 #[component]
 fn Home() -> impl IntoView {
     let initial_items: Vec<Record<Item>> = vec![];
@@ -140,21 +155,14 @@ fn Home() -> impl IntoView {
                             Some(data) => {
                                 set_items(data.unwrap());
                                 let all_stuff = items();
-                                let mut categories: Vec<String> = all_stuff
-                                    .into_iter()
-                                    .map(|i| i.fields.categories)
-                                    .filter(|c| c.is_some())
-                                    .map(|c| c.unwrap())
-                                    .flatten()
-                                    .collect();
-                                categories.sort();
-                                categories.dedup();
+                                let categories = get_categories(all_stuff);
 
                                 let stuff = items();
 
                                 view! {
                                     <ShowCategories categories />
                                     <ShowData stuff />
+                                    // <ShowData />
                                 }.into_view()
                             }
                         }}
