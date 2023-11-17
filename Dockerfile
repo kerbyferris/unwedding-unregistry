@@ -21,8 +21,8 @@ COPY --from=builder /app/Cargo.toml /app/
 WORKDIR /app
 
 ENV RUST_LOG="info"
-ENV LEPTOS_SITE_ADDR=0.0.0.0:3000
+ENV LEPTOS_SITE_ADDR="0.0.0.0:8080"
 ENV LEPTOS_SITE_ROOT="site"
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["/app/unwedding-unregistry"]

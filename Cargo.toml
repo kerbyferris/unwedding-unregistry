@@ -20,7 +20,7 @@ simple_logger = "4"
 tokio = { version = "1.28.1", optional = true }
 tower = { version = "0.4.13", optional = true }
 tower-http = { version = "0.4", features = ["fs"], optional = true }
-wasm-bindgen = "^0.2.87"
+wasm-bindgen = "0.2.88"
 thiserror = "1.0.40"
 tracing = { version = "0.1.37", optional = true }
 http = "0.2.9"
@@ -69,11 +69,9 @@ tailwind-input-file = "style/tailwind.css"
 
 # [Optional] Files in the asset-dir will be copied to the site-root directory
 assets-dir = "public"
-# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
-# site-addr = "127.0.0.1:3000"
-site-addr = "0.0.0.0:3000"
+site-addr = "0.0.0.0:8080"
 # The port to use for automatic reload monitoring
-reload-port = 3001
+reload-port = 8081
 
 # [Optional] Command to use when running end2end tests. It will run in the end2end dir.
 #   [Windows] for non-WSL use "npx.cmd playwright test"
