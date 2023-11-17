@@ -4,8 +4,8 @@ async fn main() {
     use axum::{routing::get, Router};
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use leptos_tailwind::{app::*, fallback::file_and_error_handler};
     use log::info;
+    use unwedding_unregistry::{app::*, fallback::file_and_error_handler};
 
     simple_logger::init_with_level(log::Level::Info).expect("couldn't initialize logging");
 

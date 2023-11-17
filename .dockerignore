@@ -1,0 +1,10 @@
+*
+
+!public/
+!src/
+!style
+!Cargo.lock
+!Cargo.toml
+!package-lock.json
+!package.json
+!tailwind.config.js

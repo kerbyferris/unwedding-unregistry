@@ -1,5 +1,5 @@
 [package]
-name = "leptos-tailwind"
+name = "unwedding-unregistry"
 version = "0.1.0"
 edition = "2021"
 
@@ -20,7 +20,7 @@ simple_logger = "4"
 tokio = { version = "1.28.1", optional = true }
 tower = { version = "0.4.13", optional = true }
 tower-http = { version = "0.4", features = ["fs"], optional = true }
-wasm-bindgen = "0.2.84"
+wasm-bindgen = "^0.2.87"
 thiserror = "1.0.40"
 tracing = { version = "0.1.37", optional = true }
 http = "0.2.9"
@@ -56,7 +56,7 @@ skip_feature_sets = [["ssr", "hydrate"]]
 
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name   
-output-name = "tailwind"
+output-name = "unwedding-unregistry"
 # The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
 site-root = "target/site"
 # The site-root relative folder where all compiled output (JS, WASM and CSS) is written
@@ -70,7 +70,8 @@ tailwind-input-file = "style/tailwind.css"
 # [Optional] Files in the asset-dir will be copied to the site-root directory
 assets-dir = "public"
 # The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
-site-addr = "127.0.0.1:3000"
+# site-addr = "127.0.0.1:3000"
+site-addr = "0.0.0.0:3000"
 # The port to use for automatic reload monitoring
 reload-port = 3001
 
