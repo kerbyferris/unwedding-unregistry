@@ -41,7 +41,6 @@ use std::{env, fmt, fmt::Debug, marker::PhantomData};
 
 use anyhow::{bail, Result};
 use chrono::{offset::Utc, DateTime};
-// use log::info;
 use reqwest::{header, Method, Request, StatusCode, Url};
 use schemars::JsonSchema;
 use serde::{

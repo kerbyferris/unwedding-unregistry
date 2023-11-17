@@ -2,12 +2,10 @@ use crate::airtable::*;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use log::info;
+// use log::info;
 use serde::{Deserialize, Serialize};
 use std::env;
 
-// We will iterate through the references to the element returned by
-// env::vars();
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -74,12 +72,9 @@ pub fn App() -> impl IntoView {
     let initial_items: Vec<Record<Item>> = vec![];
     let (items, set_items) = create_signal(initial_items);
     let data = create_resource(|| (), |_| async move { load_data().await });
-    // let envs = env::vars();
-    // info!("{:?}", envs);
 
     view! {
-        // <Stylesheet id="leptos" href="/pkg/unwedding-unregistry.css"/>
-        <Link rel="stylesheet" href="/pkg/unwedding-unregistry.css"/>
+        <Stylesheet id="leptos" href="/pkg/unwedding-unregistry.css"/>
         <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
         <Link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
         <Router>
@@ -103,22 +98,21 @@ pub fn App() -> impl IntoView {
                     <Route path="cart" view=  move || view! { <Cart/> }/>
                 </Routes>
                 <Suspense fallback=|| ()>
-                        {move || match data.get() {
-                            None => { view! { <p>"Loading..."</p> }.into_view()},
-                            Some(data) => {
-                                // fix this
-                                match data {
-                                    Ok(data) => {
-                                        set_items(data);
-                                        view! { "" }.into_view()
-                                    },
-                                    Err(e) => {
-                                        info!("{:?}", e);
-                                        view! { "" }.into_view()
-                                    },
-                                }
+                    {move || match data.get() {
+                        None => { view! { <p>"Loading..."</p> }.into_view()},
+                        Some(data) => {
+                            // fix this
+                            match data {
+                                Ok(data) => {
+                                    set_items(data);
+                                    view! { "" }.into_view()
+                                },
+                                Err(_) => {
+                                    view! { "" }.into_view()
+                                },
                             }
-                        }}
+                        }
+                    }}
                 </Suspense>
             </main>
         </Router>
@@ -182,7 +176,6 @@ pub fn ShowData(stuff: Vec<Record<Item>>) -> impl IntoView {
 
 #[component]
 pub fn ItemForSale(item: Item) -> impl IntoView {
-    // info!("{:?}", item);
     view! {
         <div class="bg-gray-100 p-3 rounded">
             { if item.images.is_some() {
