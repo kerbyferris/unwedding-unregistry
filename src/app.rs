@@ -2,7 +2,7 @@ use crate::airtable::*;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-// use log::info;
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::env;
 
@@ -67,6 +67,31 @@ pub fn get_categories(items: Vec<Record<Item>>) -> Vec<String> {
     categories
 }
 
+fn get_items_by_category(items: Vec<Record<Item>>, category: Option<String>) -> Vec<Record<Item>> {
+    let published = items
+        .clone()
+        .into_iter()
+        .filter(|i| i.fields.publish.is_some())
+        .collect();
+
+    match category {
+        None => published,
+        Some(c) => published
+            .clone()
+            .into_iter()
+            .filter(|p| {
+                p.clone()
+                    .fields
+                    .categories
+                    .unwrap()
+                    .into_iter()
+                    .rfind(|i| i == &c)
+                    .is_some()
+            })
+            .collect(),
+    }
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     let initial_items: Vec<Record<Item>> = vec![];
@@ -78,7 +103,7 @@ pub fn App() -> impl IntoView {
         <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
         <Link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
         <Router>
-            <div class="absolute top-0 right-0 m-10"><a href="/cart">Cart Icon</a></div>
+            <div class="absolute top-0 right-0 m-10"><a href="/cart"><img src="/cart.svg"/></a></div>
             <nav class="flex h-40 p-8">
                 <div class="flex items-start self-stretch flex-col justify-center">
                     <a href="/" class="text-6xl text-gray-800 font-bold">Goodbye Stuff</a>
@@ -121,15 +146,51 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn Home() -> impl IntoView {
-    view! { <p>The Home Page</p> }
+    view! { <img src="/home-page.png" /> }
 }
 
 #[component]
 fn Stuff(stuff: Vec<Record<Item>>) -> impl IntoView {
+    let initial_category: Option<String> = None;
+    let (category, set_category) = create_signal(initial_category);
+    let categories = get_categories(stuff.clone());
+    let items = get_items_by_category(stuff.clone(), Some("sports".to_string())); //TODO
+    info!("ITEMS: {:?}", items);
     view! {
         <div class="flex items-start">
-            <ShowCategories categories=get_categories(stuff.clone())/>
-            <ShowData stuff=stuff.clone() />
+            <div class="pr-10">
+                <ul>
+                    {categories.into_iter()
+                        .map(|c| {
+                            let text = c.clone();
+                            view! {
+                                <li class="mb-3 w-full">
+                                    <button
+                                        class="text-white bg-gray-400 font-bold rounded px-3 py-1"
+                                        on:click=move |_| {
+                                            set_category(Some(c.to_string()));
+                                            info!("{:?}", category().unwrap());
+                                        }
+                                    >{text}</button>
+                                </li>
+                            }
+                        }).collect_view()}
+
+                </ul>
+            </div>
+            <div class="flex-1">
+                <div class="m-auto grid grid-cols-6 gap-4">
+                    // TODO: fix reactivity
+                    {items.into_iter()
+                        .filter(|i| i.fields.publish.is_some())
+                        .map(|i| {
+                            let item: Item = i.fields;
+                            view! {
+                                <ItemForSale item /> }
+                        })
+                        .collect_view()}
+                </div>
+            </div>
         </div>
     }
 }
@@ -137,41 +198,6 @@ fn Stuff(stuff: Vec<Record<Item>>) -> impl IntoView {
 #[component]
 fn Cart() -> impl IntoView {
     view! { <p>The cart page</p> }
-}
-
-#[component]
-pub fn ShowCategories(categories: Vec<String>) -> impl IntoView {
-    view! {
-        <div class="pr-10">
-            <ul>
-                {categories.into_iter()
-                    .map(|c| view! {
-                        <li class="mb-3 w-full">
-                            <a href="#" class="text-white bg-gray-400 font-bold rounded px-3 py-1">{c}</a>
-                        </li>
-                    } )
-                    .collect_view()}
-            </ul>
-        </div>
-    }
-}
-
-#[component]
-pub fn ShowData(stuff: Vec<Record<Item>>) -> impl IntoView {
-    view! {
-        <div class="flex-1">
-            <div class="m-auto grid grid-cols-6 gap-4">
-                {stuff.into_iter()
-                    .filter(|i| i.fields.publish.is_some())
-                    .map(|i| {
-                        let item: Item = i.fields;
-                        view! {
-                            <ItemForSale item /> }
-                    })
-                    .collect_view()}
-            </div>
-        </div>
-    }
 }
 
 #[component]
